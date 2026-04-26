@@ -103,7 +103,7 @@ addLayer("p", {
             description: "You've gained a power. To use it, imagine. (Super powers boost Power)",
             cost: new Decimal(3),
             effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).pow(0.5))
+                let eff = player[this.layer].points.add(1).pow(0.5)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -122,7 +122,7 @@ addLayer("p", {
             description: "All things begin with Pona, this is the basic (Power boost Power)",
             cost: new Decimal(8),
             effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).pow(0.1))
+                let eff = player.points.add(1).pow(0.1)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -141,7 +141,7 @@ addLayer("p", {
             description: "Try incinerate a paper, you can't, try imagine better (Power boost Power)",
             cost: new Decimal(25),
             effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).log10())
+                let eff = player.points.add(1).log10().add(1)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -160,7 +160,7 @@ addLayer("p", {
             description: "This is not just about fire or light... (Power boost Power again, but other formula)",
             cost: new Decimal(80),
             effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).pow(0.25).div(2))
+                let eff = player.points.add(1).pow(0.25).div(2)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -175,7 +175,7 @@ addLayer("p", {
 
         22: {
             title: "Let there to be... Air?",
-            description: "Ok, are you just getting stronger each second... (x2 Super Power and Power (YEES))",
+            description: "Ok, are you just getting stronger each second... (x2 Super Power and Power)",
             cost: new Decimal(125),
 
             unlocked() { return hasUpgrade("p", 21)}
@@ -187,7 +187,7 @@ addLayer("p", {
             cost: new Decimal(2000),
 
             effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).log10().pow(0.3))
+                let eff = player.points.add(1).log10().pow(0.3)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -207,7 +207,7 @@ addLayer("p", {
             cost: new Decimal(6000),
 
            effect() {
-                let eff = new Decimal(player[this.layer].points.add(1).log10().pow(0.4))
+                let eff = player[this.layer].points.add(1).log10().pow(0.4)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -225,11 +225,14 @@ addLayer("p", {
             title: "Who is Baret?",
             description: "The Original Celestial of limits (x2 Super Power)",
             cost: new Decimal(1e5),
+
+            unlocked() { return hasUpgrade("f", 13)}
         },
 
         31: {
             description: "No title, my ideas get softcapped (x1.3 Power, x1.2 Super Power and x1.1 Fire)",
             cost: new Decimal(1e6),
+            unlocked() { return hasUpgrade("f", 13)}
         },
 
 
@@ -391,7 +394,7 @@ addLayer("f", {
         description: "This is just a music...(x2 Super Power & Power)",
         cost: new Decimal(2),
 
-        unlocked() { return hasUpgrade("f", 11)}
+        unlocked() { return hasUpgrade("f", 11) }
     },
 
     13: {
@@ -399,7 +402,7 @@ addLayer("f", {
         description: "I am not a AI (Unlock Super Power u25 and u31)",
         cost: new Decimal(5),
 
-        unlocked() { return hasUpgrade("f", 12)}
+        unlocked() { return hasUpgrade("f", 12) }
     },
 
     14: {
@@ -407,7 +410,7 @@ addLayer("f", {
         description: "Fire Challenges for fire powers (Unlock Fire Challenges)",
         cost: new Decimal(30),
 
-        unlocked() { return hasUpgrade("f", 13)}
+        unlocked() { return hasUpgrade("f", 13) }
     },
 
     15: {
@@ -415,7 +418,7 @@ addLayer("f", {
         description: "You improving your fire without someone say to you make it? (Unlock Ash, in fire)",
         cost: new Decimal(100),
 
-        unlocked() { return hasUpgrade("f", 14)}
+        unlocked() { return hasUpgrade("f", 14) }
     },
 
     21: {
@@ -423,7 +426,7 @@ addLayer("f", {
         description: "After the ending of the flames, there is always a Ash (x2 Fire, x2 Ash)",
         cost: new Decimal(350),
 
-        unlocked() { return hasUpgrade("f", 15)}
+        unlocked() { return hasUpgrade("f", 15) }
     },
 
     22: {
@@ -431,7 +434,7 @@ addLayer("f", {
         description: "(Automagically gain Super Power per second)",
         cost: new Decimal(550),
 
-        unlocked() { return hasUpgrade("f", 21)}
+        unlocked() { return hasUpgrade("f", 21) }
     },
 
     23: {
@@ -459,11 +462,11 @@ addLayer("f", {
         description: "(Unlock the Alle)",
         cost: new Decimal(1e7),
 
-        unlocked() { return hasUpgrade("f", 23)}
+        unlocked() { return hasUpgrade("f", 23) }
     },
 
     25: {
-        title: "Ashley loooooook at me",
+        title: "Ashley loooooook at boost",
         description: "(Power boost Ash and Wind)",
         cost: new Decimal(1e8),
 
