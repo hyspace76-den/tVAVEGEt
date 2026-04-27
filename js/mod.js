@@ -1,6 +1,6 @@
 let modInfo = {
 	name: "tVAVEGEt",
-	author: "otavi/hyspace",
+	author: "hyspace",
 	pointsName: "Power",
 	modFiles: [
 		"layers/SPAF.js", 
@@ -49,7 +49,7 @@ function getPointGen() {
             gain = gain.div(10)
 
 	 if (inChallenge("f", 12))
-            gain = gain.div(1000)
+            gain = gain.div(100)
 
 	 if (inChallenge("w", 11))
             gain = gain.div(1000)
@@ -73,7 +73,7 @@ function getPointGen() {
 	if (hasUpgrade("f", 12)) gain = gain.times(2)
 	if (hasUpgrade("f", 23)) gain = gain.times(upgradeEffect("f", 23))
 	if (player.f.ash.gt(0)) {
-		gain = gain.times(player.f.ash.add(1).pow(0.25).add(1))
+		gain = gain.times(player.f.ash.add(1).pow(0.25).add(2))
 	}
 
 	if (player.f.powerSB.gt(0)) {
@@ -86,7 +86,9 @@ function getPointGen() {
 	if (hasUpgrade("w", 14))
         gain = gain.times(upgradeEffect("w", 14))
 
-
+	// boosts: e \\
+	if (hasUpgrade("e", 11)) gain = gain.times(2)
+		
     return gain
 }
 

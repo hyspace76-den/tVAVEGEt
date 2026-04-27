@@ -23,7 +23,7 @@ addLayer("p", {
        let mult = new Decimal(1)
 
        if (inChallenge("f", 12))
-            mult = mult.div(50)
+            mult = mult.div(40)
 
        // boosts: p \\
 
@@ -103,10 +103,10 @@ addLayer("p", {
             description: "You've gained a power. To use it, imagine. (Super powers boost Power)",
             cost: new Decimal(3),
             effect() {
-                let eff = player[this.layer].points.add(1).pow(0.5)
+                let eff = player[this.layer].points.add(1).pow(0.5).add(1)
 
-                if (eff.gte(1e33)) {
-                    eff = eff.div(1e33).pow(0.3).mul(1e33)
+                if (eff.gte(6e10)) {
+                    eff = eff.div(6e10).pow(0.3).mul(1e10)
                 }
 
                 return eff
@@ -122,10 +122,10 @@ addLayer("p", {
             description: "All things begin with Pona, this is the basic (Power boost Power)",
             cost: new Decimal(8),
             effect() {
-                let eff = player.points.add(1).pow(0.1)
+                let eff = player.points.add(1).pow(0.1).add(1)
 
-                if (eff.gte(1e33)) {
-                    eff = eff.div(1e33).pow(0.3).mul(1e33)
+                if (eff.gte(21000)) {
+                    eff = eff.div(21000).pow(0.3).mul(21000)
                 }
 
                 return eff
@@ -143,8 +143,8 @@ addLayer("p", {
             effect() {
                 let eff = player.points.add(1).log10().add(1)
 
-                if (eff.gte(1e33)) {
-                    eff = eff.div(1e33).pow(0.3).mul(1e33)
+                if (eff.gte(35)) {
+                    eff = eff.div(35).pow(0.3).mul(35)
                 }
 
                 return eff
@@ -157,13 +157,13 @@ addLayer("p", {
 
         21: {
             title: "Let there be light",
-            description: "This is not just about fire or light... (Power boost Power again, but other formula)",
+            description: "This is not just about fire or light... (Power boost Power again)",
             cost: new Decimal(80),
             effect() {
-                let eff = player.points.add(1).pow(0.25).div(2)
+                let eff = player.points.add(1).pow(0.25).div(2).add(1)
 
-                if (eff.gte(1e33)) {
-                    eff = eff.div(1e33).pow(0.3).mul(1e33)
+                if (eff.gte(1e10)) {
+                    eff = eff.div(1e10).pow(0.3).mul(1e10)
                 }
 
                 return eff
@@ -265,7 +265,7 @@ addLayer("p", {
 addLayer("f", {
     name: "Fire",
     symbol: "F",
-    position: 0,
+    position: 1,
 
     startData() {
         return {
@@ -283,8 +283,12 @@ addLayer("f", {
     },
 
     effect() {
-            let powerCalc = player.f.ash.add(1).pow(0.25);
-            let superPowerCalc = player.f.ash.add(1).log10().add(1);
+            let powerCalc = player.f.ash.add(1).pow(0.25).add(2);
+            if (hasUpgrade("w", 34))
+                powerCalc = powerCalc.times(1.3);
+
+
+            let superPowerCalc = player.f.ash.add(1).log10().add(2);
 
             return{
                 power: powerCalc,
@@ -484,6 +488,26 @@ addLayer("f", {
 
         unlocked() { return hasUpgrade("f", 24)}
     },
+
+    31: {
+        title: "So cheap, thank you Earth u11",
+        description: "(Power boost Power)",
+        cost: new Decimal(1),
+
+        effect() {
+            let eff = player.points.add(1).log10().pow(0.5).add(1)
+
+            if (eff.gt(1e33)) {
+                eff = eff.div(1e33).pow(0.5).mul(1e33)
+            }
+
+            return eff
+        },
+
+        effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x"},
+
+        unlocked() { return hasUpgrade("e", 11)}
+    },
 },
 
     //  FIRE DECAY  \\
@@ -525,13 +549,13 @@ addLayer("f", {
         },
 
         12: {
-            name: "Infernal Flames<br> you will see :)",
-            challengeDescription: "Power gain is divided by 1000 and super power by 50",
+            name: "Infernal Flames<br> you will see why :)",
+            challengeDescription: "Power gain is divided by 100 and super power by 40",
             goal: new Decimal(1.5e5),
             rewardDescription: "x2 Fire, Fire decay is 1% lower, and Fire boosts Ash",
 
             rewardEffect() {
-                let eff = player.f.points.add(1).log10().add(1)
+                let eff = player.f.points.add(1).log10().add(0.7)
 
                 return eff
             },
@@ -618,7 +642,7 @@ addLayer("f", {
             let eff = player.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
-                exp = new Decimal(0.7)
+                exp = exp.add(0.1)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
@@ -637,10 +661,10 @@ addLayer("f", {
 
         onClick() { 
             let exp = new Decimal(0.6)
-            let eff = player.points.add(1).log10().pow(exp)
+            let eff = player.p.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
-                exp = new Decimal(0.7)
+                exp = exp.add(0.1)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
@@ -661,10 +685,10 @@ addLayer("f", {
 
         onClick() { 
            let exp = new Decimal(0.6)
-            let eff = player.points.add(1).log10().pow(exp)
+            let eff = player.f.points.add(1).log10().pow(exp)
 
-            if (hasChallenge("w", 12))
-                exp = new Decimal(0.7)
+           if (hasChallenge("w", 12))
+                exp = exp.add(0.1)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
@@ -678,17 +702,17 @@ addLayer("f", {
 
     14: {
         display() { 
-            return "The Wind Alle gives you: x" + format(player[this.layer].windSB || 1) + " Wind. Next Alle with x Wind"
+            return "The Wind Alle gives you: x" + format(player[this.layer].windSB || 1) + " Wind. Next Alle with a Wind Upgrade"
         },
 
         canClick() { return true },
 
         onClick() { 
             let exp = new Decimal(0.6)
-            let eff = player.points.add(1).log10().pow(exp)
+            let eff = player.w.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
-                exp = new Decimal(0.7)
+                exp = exp.add(0.1)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
@@ -702,17 +726,17 @@ addLayer("f", {
 
     15: {
         display() { 
-            return "The Ash Alle gives you: x" + format(player[this.layer].ashSB || 1) + " Ash. Next Alle with a Wind Upgrade"
+            return "The Ash Alle gives you: x" + format(player[this.layer].ashSB || 1) + " Ash. Next Alle with a Earth upgrade"
         },
 
         canClick() { return true },
 
         onClick() { 
             let exp = new Decimal(0.7)
-            let eff = player.points.add(1).log10().pow(exp)
+            let eff = player.f.ash.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
-                exp = new Decimal(0.8)
+                exp = exp.add(0.1)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)

@@ -1,13 +1,12 @@
 addLayer("w", {
     name: "Wind",
     symbol: "W",
-    position: 1,
+    position: 2,
 
     startData() {
         return {
             unlocked: false,
             points: new Decimal(0),
-            activeNodes: []
         }
     },
 
@@ -130,6 +129,26 @@ addLayer("w", {
         unlocked() { return hasUpgrade("w", 13)}
     },
 
+    15: {
+        title: "Yes there is a difference",
+        description: "(Wind boosts Power and Super Power as the same formula of previous upgrade, but now for 'free' :) )",
+        cost: new Decimal(1),
+
+        effect() {
+            let eff = player.w.points.add(1).pow(0.25).div(10).add(2)
+
+            if (eff.gt(1e33)) {
+                eff = eff.div(1e33).pow(0.5).mul(1e33)
+            }
+
+            return eff
+        },
+
+        effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x"},
+
+        unlocked() { return hasUpgrade("e", 11)}
+    },
+
     31: {
         title: "Wind is important, or I just don't like Fire?",
         description: "(Wind boosts Ash and Ash boost Fire)",
@@ -182,7 +201,20 @@ addLayer("w", {
         unlocked() { 
             return hasUpgrade("w", 32) 
         }
-    }
+    },
+
+    34: {
+        title: "Next Layer at 1e36 Power",
+        description: "(Ash boost Power a bit better)",
+
+        cost() {
+            return new Decimal(5e9)
+        },
+
+        unlocked() { 
+            return hasUpgrade("w", 33) 
+        }
+    },
 },
 
 
@@ -209,7 +241,7 @@ addLayer("w", {
         12: {
             name: "Have you tried<br> to translate names?",
             challengeDescription: "same as before, but don't reset anything in fire, and /1e10 Power",
-            goal: new Decimal(12.75),
+            goal: new Decimal(30),
             rewardDescription: "Introduce soft cap in game, but also, better a bit, some gains of almost all Alles", 
 
             unlocked() { return true },
@@ -233,7 +265,97 @@ addLayer("w", {
 //
 
 
-//add
+addLayer("e", {
+    name: "Earth",
+    symbol: "E",
+    position: 3,
+
+    startData() {
+        return {
+            unlocked: false,
+            points: new Decimal(0),
+        }
+    },
+
+    color: "#a54a00",
+    requires: new Decimal(4e34),
+
+    resource: "earth",
+    baseResource: "points",
+    baseAmount() { return player.points },
+
+    type: "normal",
+    exponent: 0.3,
+
+    effect() {
+            let power2Ea = player.e.points.pow(0.5).add(1);
+
+            let sPower2Ea = player.e.points.log10().add(1);
+
+            return{
+                power: power2Ea,
+                superPower: sPower2Ea,
+            }
+        }, 
+
+        doReset(resettingLayer) {
+    if (resettingLayer === "e") {
+        player.points = new Decimal(0);
+
+        for (let layer in layers) {
+            let data = layers[layer];
+            if (
+                data.row < this.row ||
+                (data.row === this.row && data.position < this.position)
+            ) {
+                layerDataReset(layer, []);
+            }
+        }
+    }
+},
+
+    tabFormat: {
+    "Upgrades": {
+
+        content: [
+        "main-display",
+        "prestige-button",
+        ["display-text", function() {
+            return "You have " + format(player.e.points + " earth.")
+        }],
+
+        ["display-text", function() {
+            return "Which is increasing Power by x" + format(tmp.e.effect.power) + ", and Super Power by x" + format(tmp.e.effect.superPower + ".")
+        }],
+        "blank",
+        "upgrades"
+    ]
+
+    },
+
+    },
+
+    gainMult() {
+       let mult = new Decimal(1)
+
+       return mult
+    },
+
+    gainExp() {
+        return new Decimal(1)
+    },
+
+    upgrades: {
+        11: {
+            title: "Earth, the third element of the four ones",
+            description: "There is no difference, prefer buy this (x2 Power)",
+            cost: new Decimal(1),
+        }
+    },
+
+    row: 1,
+    layerShown() { return player.points.gte(4e34) || player.e.unlocked }
+})
 
 
 //
