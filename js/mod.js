@@ -8,15 +8,15 @@ let modInfo = {
 		"tree.js"
 	],
 
-	discordName: "",
-	discordLink: "",
+	discordName: "Hyspace Games",
+	discordLink: "https://discord.gg/w7VwHs93Kx",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
 	offlineLimit: 24000,  // In hours
 }
 
 // Set your version in num and name
 let VERSION = {
-	num: "A0.0.1",
+	num: "0",
 	name: "not even a release",
 }
 
@@ -88,7 +88,7 @@ function getPointGen() {
 
 	// boosts: e \\
 	if (hasUpgrade("e", 11)) gain = gain.times(2)
-		
+
     return gain
 }
 
