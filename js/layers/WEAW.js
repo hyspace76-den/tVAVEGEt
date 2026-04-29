@@ -12,7 +12,7 @@ addLayer("w", {
 
      tabFormat: {
     "Upgrades": { 
-        content: ["main-display", "prestige-button", "blank", ["upgrades", [1], [2]]] 
+        content: ["main-display", "prestige-button", "blank", ["upgrades", [1, 2]]] 
     },
 
     "Challenges": { 
@@ -26,7 +26,7 @@ addLayer("w", {
     content: [
         "main-display",
         "blank",
-        ["upgrades", [3]]
+        ["upgrades", [3, 4]]
     ]
 },
 },
@@ -130,8 +130,8 @@ addLayer("w", {
     },
 
     15: {
-        title: "Yes there is a difference",
-        description: "(Wind boosts Power and Super Power as the same formula of previous upgrade, but now for 'free' :) )",
+        title: "Yes have difference",
+        description: "(Wind boosts Power and Super Power as the same formula of previous upgrade)",
         cost: new Decimal(1),
 
         effect() {
@@ -173,7 +173,7 @@ addLayer("w", {
     },
 
     32: {
-        title: "Powering Ash to milions",
+        title: "Powering Ash to hundred milions",
         description: "(Unlock a new Alle)",
         cost: new Decimal(1e6),
 
@@ -214,6 +214,52 @@ addLayer("w", {
         unlocked() { 
             return hasUpgrade("w", 33) 
         }
+    },
+
+    35: {
+        title: "Next unlock is unexpected",
+        description: "(You don't lose fire per second (tbh, -4% of the loss per second))",
+
+        cost() {
+            return new Decimal(1e44)
+        },
+
+        currencyDisplayName: "powers",
+
+        canAfford() {
+            return player.points.gte(this.cost())
+        },
+
+        pay() {
+            player.points = player.points.sub(this.cost())
+        },
+
+        unlocked() { 
+            return hasUpgrade("e", 14) 
+        }  
+    },
+
+    41: {
+        title: "1 Power upgrade",
+        description: "(Unlock a new Power Upgrade, and x3 Fire and Ash)",
+
+        cost() {
+            return new Decimal(1)
+        },
+
+        currencyDisplayName: "powers",
+
+        canAfford() {
+            return player.points.gte(this.cost())
+        },
+
+        pay() {
+            player.points = player.points.sub(this.cost())
+        },
+
+        unlocked() { 
+            return hasUpgrade("e", 15) 
+        }  
     },
 },
 
@@ -288,31 +334,15 @@ addLayer("e", {
     exponent: 0.3,
 
     effect() {
-            let power2Ea = player.e.points.pow(0.5).add(1);
+            let power2Ea = player.e.points.add(1).pow(0.5).add(1);
 
-            let sPower2Ea = player.e.points.log10().add(1);
+            let sPower2Ea = player.e.points.add(1).log10().add(1);
 
-            return{
+            return {
                 power: power2Ea,
                 superPower: sPower2Ea,
             }
-        }, 
-
-        doReset(resettingLayer) {
-    if (resettingLayer === "e") {
-        player.points = new Decimal(0);
-
-        for (let layer in layers) {
-            let data = layers[layer];
-            if (
-                data.row < this.row ||
-                (data.row === this.row && data.position < this.position)
-            ) {
-                layerDataReset(layer, []);
-            }
-        }
-    }
-},
+        },
 
     tabFormat: {
     "Upgrades": {
@@ -348,10 +378,75 @@ addLayer("e", {
     upgrades: {
         11: {
             title: "Earth, the third element of the four ones",
-            description: "There is no difference, prefer buy this (x2 Power)",
+            description: "There is no difference, prefer buy this (x2 Power and unlock a Fire and a Wind Upgrade)",
             cost: new Decimal(1),
-        }
+        },
+
+        12: {
+            title: "Slow like a turtle...",
+            description: "Early buff and also a challenge buff (+1 Super Power gen and unlock Super Power Upgrade)",
+            cost: new Decimal(3),
+            unlocked() { return hasUpgrade("e", 11) }
+        },
+
+        13: {
+            title: "Scaling ++",
+            description: "(Keep Super Power Upgs)",
+            cost: new Decimal(100),
+            unlocked() { return hasUpgrade("e", 12) }
+        },
+
+        14: {
+            title: "Scaling +++",
+            description: "(Unlock new luchts upgrades, per Earth upgrade, and keep challenges completed)",
+            cost: new Decimal(1000),
+            unlocked() { return hasUpgrade("e", 13) }
+        },
+
+        15: {
+            title: "Passive scaling",
+            description: "(Power boost Power again (it have a softcap at 1), keep fire upgrades unlocked)",
+            cost: new Decimal(5000),
+
+            effect() {
+            let eff = player.points.add(1).pow(0.25).add(1)
+
+            if (eff.gt(1)) {
+                eff = eff.div(1).pow(0.5).mul(1)
+            }
+
+            if (eff.gt(1e5)) {
+                eff = eff.div(1e5).pow(0.5).mul(1e5)
+            }
+
+            return eff
+        },
+
+        effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x"},
+
+            unlocked() { return hasUpgrade("e", 14) }
+        },
     },
+
+    doReset(resettingLayer) {
+    if (resettingLayer === "e") {
+        
+        let keepP = []
+        if (hasUpgrade("e", 13)) keepP.push("upgrades")
+        layerDataReset("p", keepP)
+
+        
+        let keepF = []
+        if (hasUpgrade("e", 15)) keepF.push("upgrades")
+        if (hasUpgrade("e", 14)) keepF.push("challenges") 
+        layerDataReset("f", keepF)
+
+       
+        let keepW = []
+        if (hasUpgrade("e", 14)) keepW.push("challenges")
+        layerDataReset("w", keepW)
+    }
+},
 
     row: 1,
     layerShown() { return player.points.gte(4e34) || player.e.unlocked }

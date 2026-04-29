@@ -6,7 +6,7 @@ addLayer("p", {
     startData() {
         return {
             unlocked: true,
-            points: new Decimal(0)
+            points: new Decimal(1)
         }
     },
 
@@ -30,11 +30,17 @@ addLayer("p", {
         if (hasUpgrade("p", 22))
             mult = mult.times(2)
 
-        if (hasUpgrade("p", 23))
-            mult = mult.times(upgradeEffect("p", 23))
+        if (hasUpgrade("p", 23) && upgradeEffect("p", 23)) {
+            let eff = upgradeEffect("p", 23)
+            if (eff && eff.gt(0))
+                mult = mult.times(eff)
+        }
 
-        if (hasUpgrade("p", 24))
-            mult = mult.times(upgradeEffect("p", 24))
+        if (hasUpgrade("p", 24) && upgradeEffect("p", 24)) {
+            let eff = upgradeEffect("p", 24)
+            if (eff && eff.gt(0))
+                mult = mult.times(eff)
+        }
 
         if (hasUpgrade("p", 25))
             mult = mult.times(2)
@@ -42,21 +48,24 @@ addLayer("p", {
         if (hasUpgrade("p", 31))
             mult = mult.times(1.2)
 
+        if (hasUpgrade("p", 41))
+            mult = mult.times(3)
+
 
         // boosts: f \\
         
         if (hasUpgrade("f", 12))
             mult = mult.times(2)
 
-        if (player.f.ash.gt(0)) {
+        if (player.f && player.f.ash && player.f.ash.gt(0)) {
             mult = mult.times(player.f.ash.log10().add(1))
         }
 
         if (hasChallenge("f", 11))
             mult = mult.times(challengeEffect("f", 11))
 
-        if (player.f.spowerSB.gt(0)) {
-            mult = mult.times(player.f.powerSB)
+        if (player.f && player.f.spowerSB && player.f.spowerSB.gt(0)) {
+            mult = mult.times(player.f.spowerSB)
         }
 
 
@@ -64,8 +73,23 @@ addLayer("p", {
         if (hasUpgrade("w", 11))
             mult = mult.times(2)
 
-        if (hasUpgrade("w", 14))
-            mult = mult.times(upgradeEffect("w", 14))
+        if (hasUpgrade("w", 14) && upgradeEffect("w", 14)) {
+            let eff = upgradeEffect("w", 14)
+            if (eff && eff.gt(0))
+                mult = mult.times(eff)
+        }
+
+        if (hasUpgrade("w", 15) && upgradeEffect("w", 15)) {
+            let eff = upgradeEffect("w", 15)
+            if (eff && eff.gt(0))
+                mult = mult.times(eff)
+        }
+
+        // boosts: e \\
+
+        if (tmp && tmp.e && tmp.e.effect && tmp.e.effect.superPower && tmp.e.effect.superPower.gt(0)) {
+            mult = mult.times(tmp.e.effect.superPower)
+        }
 
         return mult
 
@@ -77,10 +101,21 @@ addLayer("p", {
 
     passiveGeneration() {
         if (hasUpgrade("f", 22))
-            return 0.01
+            return (upgradeEffect("f", 22))
 
         return 0
     },
+
+    doReset(resettingLayer) {
+        if (layers[resettingLayer].row <= this.row) return;
+
+        let keep = []
+
+        if (hasUpgrade("e", 13)) keep.push("upgrades")
+
+        layerDataReset(this.layer, keep)
+    },
+
    
 
     upgrades: {
@@ -106,7 +141,7 @@ addLayer("p", {
                 let eff = player[this.layer].points.add(1).pow(0.5).add(1)
 
                 if (eff.gte(6e10)) {
-                    eff = eff.div(6e10).pow(0.3).mul(1e10)
+                    eff = eff.div(6e10).pow(0.1).mul(1e10)
                 }
 
                 return eff
@@ -124,8 +159,8 @@ addLayer("p", {
             effect() {
                 let eff = player.points.add(1).pow(0.1).add(1)
 
-                if (eff.gte(21000)) {
-                    eff = eff.div(21000).pow(0.3).mul(21000)
+                if (eff.gte(2100)) {
+                    eff = eff.div(2100).pow(0.1).mul(2100)
                 }
 
                 return eff
@@ -144,7 +179,7 @@ addLayer("p", {
                 let eff = player.points.add(1).log10().add(1)
 
                 if (eff.gte(35)) {
-                    eff = eff.div(35).pow(0.3).mul(35)
+                    eff = eff.div(35).pow(0.5).mul(35)
                 }
 
                 return eff
@@ -163,7 +198,7 @@ addLayer("p", {
                 let eff = player.points.add(1).pow(0.25).div(2).add(1)
 
                 if (eff.gte(1e10)) {
-                    eff = eff.div(1e10).pow(0.3).mul(1e10)
+                    eff = eff.div(1e10).pow(0.1).mul(1e10)
                 }
 
                 return eff
@@ -187,7 +222,7 @@ addLayer("p", {
             cost: new Decimal(2000),
 
             effect() {
-                let eff = player.points.add(1).log10().pow(0.3)
+                let eff = player.points.add(10).log10().pow(0.3)
 
                 if (eff.gte(1e33)) {
                     eff = eff.div(1e33).pow(0.3).mul(1e33)
@@ -230,9 +265,24 @@ addLayer("p", {
         },
 
         31: {
-            description: "No title, my ideas get softcapped (x1.3 Power, x1.2 Super Power and x1.1 Fire)",
+            title: "I don't want to focus in game lore, nah",
+            description: "(1.3x Power, 1.2x Super Power and 1.1x Fire)",
             cost: new Decimal(1e6),
             unlocked() { return hasUpgrade("f", 13)}
+        },
+
+        32: {
+            title: "Out off order",
+            description: "(Is this a fire upgrade? xxx2 Power (8))",
+            cost: new Decimal(1e33),
+            unlocked() { return hasUpgrade("w", 41)}
+        },
+
+        41: {
+            title: "Here is the early buff",
+            description: "(x3 Super Power and x3 Power)",
+            cost: new Decimal(1),
+            unlocked() { return hasUpgrade("e", 12) }
         },
 
 
@@ -241,18 +291,6 @@ addLayer("p", {
 
 
     row: 0,
-
-    hotkeys: [
-        {
-            key: "p",
-            description: "P: Reset for super power",
-            onPress() {
-                if (canReset(this.layer)) doReset(this.layer)
-            }
-        }
-    ],
-
-    layerShown() { return true }
 })
 
 //
@@ -285,7 +323,7 @@ addLayer("f", {
     effect() {
             let powerCalc = player.f.ash.add(1).pow(0.25).add(2);
             if (hasUpgrade("w", 34))
-                powerCalc = powerCalc.times(1.3);
+                powerCalc = player.f.ash.add(1).pow(0.3).add(2);
 
 
             let superPowerCalc = player.f.ash.add(1).log10().add(2);
@@ -378,6 +416,9 @@ addLayer("f", {
         if (hasUpgrade("w", 12))
             mult = mult.times(2)
 
+        if (hasUpgrade("w", 41))
+            mult = mult.times(3)
+
         
     return mult
     },
@@ -437,6 +478,14 @@ addLayer("f", {
         title: "Think different and automagically",
         description: "(Automagically gain Super Power per second)",
         cost: new Decimal(550),
+        effect() {
+            let eff = new Decimal(0.01)
+
+            if (hasUpgrade("e", 12))
+                eff = eff.add(1)
+
+            return eff
+        },
 
         unlocked() { return hasUpgrade("f", 21) }
     },
@@ -470,7 +519,7 @@ addLayer("f", {
     },
 
     25: {
-        title: "Ashley loooooook at boost",
+        title: "Ashley look at boost",
         description: "(Power boost Ash and Wind)",
         cost: new Decimal(1e8),
 
@@ -518,8 +567,11 @@ addLayer("f", {
 
         let decay = new Decimal(0.05)
 
-         if (hasChallenge("f", 12))
+        if (hasChallenge("f", 12))
             decay = decay.sub(0.01)
+
+        if (hasUpgrade("w", 35))
+            decay = decay.sub(0.04)
 
 
          let loss = player.f.points.times(decay).times(diff)
@@ -605,7 +657,7 @@ addLayer("f", {
                 gain = gain.times(challengeEffect("f", 12))
 
              if (hasUpgrade("f", 25))
-                gain = gain.times(upgradeEffect("f", 25)).div(10).add(1)
+                gain = gain.times(upgradeEffect("f", 25))
 
              if (hasUpgrade("w", 31))
                 gain = gain.times(upgradeEffect("w", 31))
@@ -615,6 +667,9 @@ addLayer("f", {
 
             if (hasUpgrade("w", 33))
                 gain = gain.times(8)
+
+            if (hasUpgrade("w", 41))
+                gain = gain.times(3)
         }
 
             player.f.points = player.f.points.sub(this.cost())
@@ -638,17 +693,23 @@ addLayer("f", {
         canClick() { return true },
 
         onClick() { 
+            let data = this.effect()
+            player[this.layer].powerSB = data.effect
+        },
+
+        effect() {
             let exp = new Decimal(0.6)
-            let eff = player.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
                 exp = exp.add(0.1)
+
+            let eff = player.points.add(1).log10().pow(exp)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
             }
 
-            player[this.layer].powerSB = eff
+            return { effect: eff, exp: exp }
         }
     },
 
@@ -660,17 +721,23 @@ addLayer("f", {
         canClick() { return true },
 
         onClick() { 
+            let data = this.effect()
+            player[this.layer].spowerSB = data.effect
+        },
+
+        effect() {
             let exp = new Decimal(0.6)
-            let eff = player.p.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
                 exp = exp.add(0.1)
+
+            let eff = player.p.points.add(1).log10().pow(exp)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
             }
 
-            player[this.layer].spowerSB = eff
+            return { effect: eff, exp: exp }
         },
 
         unlocked() { return player.w.points.gte(75) }
@@ -684,17 +751,23 @@ addLayer("f", {
         canClick() { return true },
 
         onClick() { 
-           let exp = new Decimal(0.6)
-            let eff = player.f.points.add(1).log10().pow(exp)
+            let data = this.effect()
+            player[this.layer].fireSB = data.effect
+        },
 
-           if (hasChallenge("w", 12))
+        effect() {
+            let exp = new Decimal(0.6)
+
+            if (hasChallenge("w", 12))
                 exp = exp.add(0.1)
+
+            let eff = player.f.points.add(1).log10().pow(exp)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
             }
 
-            player[this.layer].fireSB = eff
+            return { effect: eff, exp: exp }
         },
 
         unlocked() { return player.w.points.gte(350) }
@@ -708,17 +781,23 @@ addLayer("f", {
         canClick() { return true },
 
         onClick() { 
+            let data = this.effect()
+            player[this.layer].windSB = data.effect
+        },
+
+        effect() {
             let exp = new Decimal(0.6)
-            let eff = player.w.points.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
                 exp = exp.add(0.1)
+
+            let eff = player.w.points.add(1).log10().pow(exp)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
             }
 
-            player[this.layer].windSB = eff
+            return { effect: eff, exp: exp }
         },
 
         unlocked() { return player.w.points.gte(750) }
@@ -732,17 +811,23 @@ addLayer("f", {
         canClick() { return true },
 
         onClick() { 
+            let data = this.effect()
+            player[this.layer].ashSB = data.effect
+        },
+
+        effect() {
             let exp = new Decimal(0.7)
-            let eff = player.f.ash.add(1).log10().pow(exp)
 
             if (hasChallenge("w", 12))
                 exp = exp.add(0.1)
+
+            let eff = player.f.ash.add(1).log10().pow(exp)
 
             if (eff.gt(1e33)) {
                 eff = eff.div(1e33).pow(0.5).mul(1e33)
             }
 
-            player[this.layer].ashSB = eff
+            return { effect: eff, exp: exp }
         },
 
         unlocked() { return hasUpgrade("w", 32) }
@@ -750,17 +835,7 @@ addLayer("f", {
 },
 
     row: 1,
-
-    hotkeys: [
-        {
-            key: "f",
-            description: "F: Reset for fire",
-            onPress() {
-                if (canReset(this.layer)) doReset(this.layer)
-            }
-        }
-    ],
-
+    
     layerShown() {
         return player.points.gte(5e8) || player.f.unlocked
     }

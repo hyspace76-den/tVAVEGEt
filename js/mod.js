@@ -66,12 +66,15 @@ function getPointGen() {
 	if (hasUpgrade("p", 21)) gain = gain.times(upgradeEffect('p', 21))
 	if (hasUpgrade("p", 22)) gain = gain.times(2)
 	if (hasUpgrade("p", 31)) gain = gain.times(1.3)
+	if (hasUpgrade("p", 41)) gain = gain.times(3)
+	if (hasUpgrade("p", 32)) gain = gain.times(8)
 
 	// boosts: f \\
 
 	if (hasUpgrade("f", 11)) gain = gain.times(2)
 	if (hasUpgrade("f", 12)) gain = gain.times(2)
 	if (hasUpgrade("f", 23)) gain = gain.times(upgradeEffect("f", 23))
+	if (hasUpgrade("f", 31)) gain = gain.times(upgradeEffect("f", 31))
 	if (player.f.ash.gt(0)) {
 		gain = gain.times(player.f.ash.add(1).pow(0.25).add(2))
 	}
@@ -85,9 +88,14 @@ function getPointGen() {
 	if (hasUpgrade("w", 12)) gain = gain.times(upgradeEffect("w", 12))
 	if (hasUpgrade("w", 14))
         gain = gain.times(upgradeEffect("w", 14))
+	if (hasUpgrade("w", 15))
+        gain = gain.times(upgradeEffect("w", 15))
 
 	// boosts: e \\
 	if (hasUpgrade("e", 11)) gain = gain.times(2)
+	if (layers.e?.effect?.power?.gt(0)) {
+            gain = gain.times(layers.e.effect.power)
+        }
 
     return gain
 }
