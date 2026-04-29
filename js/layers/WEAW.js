@@ -2,6 +2,7 @@ addLayer("w", {
     name: "Wind",
     symbol: "W",
     position: 2,
+    branches: ["p"],
 
     startData() {
         return {
@@ -34,8 +35,8 @@ addLayer("w", {
     color: "#d7d7d7",
     requires: new Decimal(2.5e16),
 
-    resource: "wind",
-    baseResource: "points",
+    resource: "wind flows",
+    baseResource: "powers",
     baseAmount() { return player.points },
 
     type: "normal",
@@ -315,6 +316,7 @@ addLayer("e", {
     name: "Earth",
     symbol: "E",
     position: 3,
+    branches: ["p"], 
 
     startData() {
         return {
@@ -326,8 +328,8 @@ addLayer("e", {
     color: "#a54a00",
     requires: new Decimal(4e34),
 
-    resource: "earth",
-    baseResource: "points",
+    resource: "dirts",
+    baseResource: "powers",
     baseAmount() { return player.points },
 
     type: "normal",

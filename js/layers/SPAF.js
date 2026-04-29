@@ -13,7 +13,7 @@ addLayer("p", {
     color: "#48ff00",
     requires: new Decimal(10),
     resource: "super powers",
-    baseResource: "points",
+    baseResource: "powers",
     baseAmount() { return player.points },
 
     type: "normal",
@@ -304,6 +304,7 @@ addLayer("f", {
     name: "Fire",
     symbol: "F",
     position: 1,
+    branches: ["p"],
 
     startData() {
         return {
@@ -378,11 +379,11 @@ addLayer("f", {
 },
 },
 
-    color: "#ff0000",
+    color: "#ff3737",
     requires: new Decimal(5e8),
 
-    resource: "fire",
-    baseResource: "points",
+    resource: "flames",
+    baseResource: "powers",
     baseAmount() { return player.points },
 
     type: "normal",
