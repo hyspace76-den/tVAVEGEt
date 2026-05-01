@@ -3,17 +3,28 @@ addLayer("p", {
     symbol: "P",
     position: 0,
 
+    tabFormat: {
+    "Upgrades": { 
+        content: ["main-display", "prestige-button", "blank", "upgrades"] 
+    },
+
+    "Challenges": { 
+        unlocked() { return hasUpgrade("w", 43) }, 
+        content: ["main-display", "blank", "challenges"] 
+    },
+},
+
     startData() {
         return {
             unlocked: true,
-            points: new Decimal(1)
+            points: new Decimal(0)
         }
     },
 
     color: "#48ff00",
     requires: new Decimal(10),
     resource: "super powers",
-    baseResource: "powers",
+    baseResource: "power",
     baseAmount() { return player.points },
 
     type: "normal",
@@ -85,6 +96,9 @@ addLayer("p", {
                 mult = mult.times(eff)
         }
 
+        if (player.w && player.w.superBoostActive)
+            mult = mult.times(player.p.points.add(1).log10().add(1).pow(0.7))
+
         // boosts: e \\
 
         if (tmp && tmp.e && tmp.e.effect && tmp.e.effect.superPower && tmp.e.effect.superPower.gt(0)) {
@@ -106,18 +120,6 @@ addLayer("p", {
         return 0
     },
 
-    doReset(resettingLayer) {
-        if (layers[resettingLayer].row <= this.row) return;
-
-        let keep = []
-
-        if (hasUpgrade("e", 13)) keep.push("upgrades")
-
-        layerDataReset(this.layer, keep)
-    },
-
-   
-
     upgrades: {
         11: {
             title: "Born to be a star",
@@ -135,13 +137,13 @@ addLayer("p", {
 
         13: {
             title: "Try use your powers again",
-            description: "You've gained a power. To use it, imagine. (Super powers boost Power)",
+            description: "You've gained much super powers. To use it, imagine. (Super powers boost Power)",
             cost: new Decimal(3),
             effect() {
                 let eff = player[this.layer].points.add(1).pow(0.5).add(1)
 
                 if (eff.gte(6e10)) {
-                    eff = eff.div(6e10).pow(0.1).mul(1e10)
+                    eff = eff.div(6e10).pow(0.1).mul(6e10)
                 }
 
                 return eff
@@ -154,7 +156,7 @@ addLayer("p", {
 
         14: {
             title: "Learn the basics!",
-            description: "All things begin with Pona, this is the basic (Power boost Power)",
+            description: "All existence started with Pona. (Power boost Power)",
             cost: new Decimal(8),
             effect() {
                 let eff = player.points.add(1).pow(0.1).add(1)
@@ -173,13 +175,13 @@ addLayer("p", {
 
         15: {
             title: "Power Training",
-            description: "Try incinerate a paper, you can't, try imagine better (Power boost Power)",
+            description: "Try incinerate a paper, if you can't, do it again.(Power boost Power)",
             cost: new Decimal(25),
             effect() {
                 let eff = player.points.add(1).log10().add(1)
 
-                if (eff.gte(35)) {
-                    eff = eff.div(35).pow(0.5).mul(35)
+                if (eff.gte(350)) {
+                    eff = eff.div(350).pow(0.5).mul(350)
                 }
 
                 return eff
@@ -191,14 +193,14 @@ addLayer("p", {
         },
 
         21: {
-            title: "Let there be light",
-            description: "This is not just about fire or light... (Power boost Power again)",
+            title: "Oh, you are getting stronger",
+            description: "... (Power boost Power again)",
             cost: new Decimal(80),
             effect() {
                 let eff = player.points.add(1).pow(0.25).div(2).add(1)
 
-                if (eff.gte(1e10)) {
-                    eff = eff.div(1e10).pow(0.1).mul(1e10)
+                if (eff.gte(1.5e10)) {
+                    eff = eff.div(1.5e10).pow(0.1).mul(1.5e10)
                 }
 
                 return eff
@@ -209,8 +211,8 @@ addLayer("p", {
         },
 
         22: {
-            title: "Let there to be... Air?",
-            description: "Ok, are you just getting stronger each second... (x2 Super Power and Power)",
+            title: "Are you a god?",
+            description: "Ok, are you just getting stronger each second, this make me scary... (x2 Super Power and Power)",
             cost: new Decimal(125),
 
             unlocked() { return hasUpgrade("p", 21)}
@@ -257,35 +259,65 @@ addLayer("p", {
         },
 
         25: {
-            title: "Who is Baret?",
-            description: "The Original Celestial of limits (x2 Super Power)",
+            title: "Baret is a nice guy",
+            description: "He is the Original Celestial of limits (x2 Super Power)",
             cost: new Decimal(1e5),
 
             unlocked() { return hasUpgrade("f", 13)}
         },
 
         31: {
-            title: "I don't want to focus in game lore, nah",
-            description: "(1.3x Power, 1.2x Super Power and 1.1x Fire)",
+            title: "Owtia is a Original Celestials, there are 12 of them",
+            description: "(1.3x Power, 1.2x Super Power, 1.1x Fire)",
             cost: new Decimal(1e6),
             unlocked() { return hasUpgrade("f", 13)}
         },
 
         32: {
-            title: "Out off order",
-            description: "(Is this a fire upgrade? xxx2 Power (8))",
+            title: "The last upgrade, I promisse",
+            description: "(x8 Power)",
             cost: new Decimal(1e33),
             unlocked() { return hasUpgrade("w", 41)}
         },
 
-        41: {
-            title: "Here is the early buff",
+        33: {
+            title: "Early buff",
             description: "(x3 Super Power and x3 Power)",
             cost: new Decimal(1),
             unlocked() { return hasUpgrade("e", 12) }
         },
 
 
+
+    },
+
+    challenges: {
+        11: {
+            name: "Flame Super Powers",
+            challengeDescription: "Power gain is divided by 10",
+            goal: new Decimal(5e50),
+            rewardDescription: "x(((log10(superPower)) + 1) ^ 0.5) Fire",
+
+            rewardEffect() {
+                let eff = player[this.layer].points.add(1).log10().add(1).pow(0.5)
+                return eff
+            },
+
+            unlocked() {
+                return hasUpgrade("w", 43)
+            },
+        },
+
+        12: {
+            name: "Completely Useless",
+            challengeDescription: "Nothing",
+            goal: new Decimal(1e52),
+            rewardDescription: "Give u some SUGAR HIGH (x5 Earth)",
+
+            unlocked() {
+                return hasUpgrade("w", 43)
+            },
+        },
 
     },
 
@@ -311,6 +343,7 @@ addLayer("f", {
             unlocked: false,
             points: new Decimal(0),
             ash: new Decimal(0),
+            boostActive: false,
 
             // "snapshot" boosts \\
             powerSB: new Decimal(0),
@@ -326,6 +359,9 @@ addLayer("f", {
             if (hasUpgrade("w", 34))
                 powerCalc = player.f.ash.add(1).pow(0.3).add(2);
 
+            if (hasUpgrade("w", 42))
+                powerCalc = powerCalc.times(1.3);
+
 
             let superPowerCalc = player.f.ash.add(1).log10().add(2);
 
@@ -337,7 +373,11 @@ addLayer("f", {
 
      tabFormat: {
     "Upgrades": { 
-        content: ["main-display", "prestige-button", "blank", "upgrades"] 
+        content: [
+            "main-display", 
+            "prestige-button", 
+            "blank", 
+            "upgrades"] 
     },
 
     "Challenges": { 
@@ -358,7 +398,7 @@ addLayer("f", {
         }],
 
         ["display-text", function() {
-            return "Increasing Power by x" + format(tmp.f.effect.power) + " and Super Power by x" + format(tmp.f.effect.superPower)
+            return "Increasing Power by x" + format(tmp.f.effect.power) + ", and Super Power by x" + format(tmp.f.effect.superPower)
         }],
 
         "blank",
@@ -379,6 +419,13 @@ addLayer("f", {
 },
 },
 
+    passiveGeneration() {
+        if (hasUpgrade("w", 44))
+            return (upgradeEffect("w", 44))
+
+        return 0
+    },
+
     color: "#ff3737",
     requires: new Decimal(5e8),
 
@@ -395,6 +442,9 @@ addLayer("f", {
         
         if (hasUpgrade("p", 31))
             mult = mult.times(1.1)
+
+        if (hasChallenge("p", 11))
+            mult = mult.times(challengeEffect("p", 11))
 
         // boosts: f \\
 
@@ -420,6 +470,12 @@ addLayer("f", {
         if (hasUpgrade("w", 41))
             mult = mult.times(3)
 
+        if (player.f && player.f.boostActive)
+            mult = mult.times(player.f.points.add(1).log10().add(1).pow(0.7))
+
+        if (hasUpgrade("w", 45))
+                mult = mult.times(upgradeEffect("w", 45))
+
         
     return mult
     },
@@ -436,48 +492,48 @@ addLayer("f", {
     },
 
     12: {
-        title: "I hope you die in fire",
-        description: "This is just a music...(x2 Super Power & Power)",
+        title: "Quadrilions of years ago",
+        description: "Owtia created Fire (x2 Super Power & Power)",
         cost: new Decimal(2),
 
         unlocked() { return hasUpgrade("f", 11) }
     },
 
     13: {
-        title: "AI titles are so bad",
-        description: "I am not a AI (Unlock Super Power u25 and u31)",
+        title: "He use Fire to make anyone who use Fire, burn it self",
+        description: "(Unlock Super Power u25 and u31)",
         cost: new Decimal(5),
 
         unlocked() { return hasUpgrade("f", 12) }
     },
 
     14: {
-        title: "I believe in you",
-        description: "Fire Challenges for fire powers (Unlock Fire Challenges)",
+        title: "I believe you can do it",
+        description: "(Unlock Fire Challenges)",
         cost: new Decimal(30),
 
         unlocked() { return hasUpgrade("f", 13) }
     },
 
     15: {
-        title: "Wait, what are you doing",
-        description: "You improving your fire without someone say to you make it? (Unlock Ash, in fire)",
+        title: "Wait, what are you doing?",
+        description: "(Unlock Ash, in Fire)",
         cost: new Decimal(100),
 
         unlocked() { return hasUpgrade("f", 14) }
     },
 
     21: {
-        title: "Not bad",
-        description: "After the ending of the flames, there is always a Ash (x2 Fire, x2 Ash)",
+        title: "Learned to put out the fire, not bad",
+        description: "(x2 Fire and Ash)",
         cost: new Decimal(350),
 
         unlocked() { return hasUpgrade("f", 15) }
     },
 
     22: {
-        title: "Think different and automagically",
-        description: "(Automagically gain Super Power per second)",
+        title: "Owtia is scared of you",
+        description: "(Create Super Power per second)",
         cost: new Decimal(550),
         effect() {
             let eff = new Decimal(0.01)
@@ -493,7 +549,7 @@ addLayer("f", {
 
     23: {
         title: "Is this a real eggxplosion?",
-        description: "Deja vu (Power boost Power)",
+        description: "Deja vu(Power boost Power)",
         cost: new Decimal(2000),
 
         effect() {
@@ -512,7 +568,7 @@ addLayer("f", {
     },
 
     24: {
-        title: "Alle",
+        title: "Alle is near to new powers, be careful",
         description: "(Unlock the Alle)",
         cost: new Decimal(1e7),
 
@@ -520,7 +576,7 @@ addLayer("f", {
     },
 
     25: {
-        title: "Ashley look at boost",
+        title: "The Power of the Elements",
         description: "(Power boost Ash and Wind)",
         cost: new Decimal(1e8),
 
@@ -540,7 +596,7 @@ addLayer("f", {
     },
 
     31: {
-        title: "So cheap, thank you Earth u11",
+        title: "Cool...",
         description: "(Power boost Power)",
         cost: new Decimal(1),
 
@@ -587,10 +643,18 @@ addLayer("f", {
     // FIRE CHALLENGES \\
     challenges: {
         11: {
-            name: "Flame Powaaa",
+            name: "Flame Powers<br> are too strong",
             challengeDescription: "Power gain is divided by 10",
             goal: new Decimal(1e9),
             rewardDescription: "x3 Super Power",
+            style() {
+                return {
+                    'background': 'linear-gradient(145deg, #ff4f4f, #7f0000)',
+                    'color': '#ffe9e9',
+                    'border': '4px solid #ff9999',
+                    'box-shadow': '0 0 18px rgba(255, 79, 79, 0.35)',
+                }
+            },
 
             rewardEffect() {
                 return new Decimal(3)
@@ -602,10 +666,18 @@ addLayer("f", {
         },
 
         12: {
-            name: "Infernal Flames<br> you will see why :)",
+            name: "INFERNAL Flames",
             challengeDescription: "Power gain is divided by 100 and super power by 40",
             goal: new Decimal(1.5e5),
             rewardDescription: "x2 Fire, Fire decay is 1% lower, and Fire boosts Ash",
+            style() {
+                return {
+                    'background': 'linear-gradient(145deg, #ff7676, #5f0000)',
+                    'color': '#fff0f0',
+                    'border': '4px solid #ff8a8a',
+                    'box-shadow': '0 0 18px rgba(255, 118, 118, 0.35)',
+                }
+            },
 
             rewardEffect() {
                 let eff = player.f.points.add(1).log10().add(0.7)
@@ -614,6 +686,25 @@ addLayer("f", {
             },
 
             rewardDisplay() { return format(this.rewardEffect())+"x"},
+
+            unlocked() {
+                return hasUpgrade("f", 14)
+            },
+        },
+
+        13: {
+            name: "Nothing more to do<br>instead of upgrades and challenges?",
+            challengeDescription: "Power gain is raised to the power of 0.5",
+            goal: new Decimal(5e20),
+            rewardDescription: "Unlocks Verkoel",
+            style() {
+                return {
+                    'background': 'linear-gradient(145deg, #ff8a5a, #660000)',
+                    'color': '#fff5ec',
+                    'border': '4px solid #ffb38a',
+                    'box-shadow': '0 0 18px rgba(255, 138, 90, 0.35)',
+                }
+            },
 
             unlocked() {
                 return hasUpgrade("f", 14)
@@ -665,13 +756,23 @@ addLayer("f", {
 
              if (player.f.ashSB.gt(0)) {
                 gain = gain.times(player.f.ashSB)
+            }
 
             if (hasUpgrade("w", 33))
                 gain = gain.times(8)
 
             if (hasUpgrade("w", 41))
                 gain = gain.times(3)
-        }
+
+            if (hasUpgrade("w", 42))
+                gain = gain.times(player.f.ash.add(1).log10().add(1))
+
+            if (hasUpgrade("w", 44))
+                gain = gain.times(10)
+
+            if (hasUpgrade("w", 45))
+                gain = gain.times(player.points.add(1).log10().pow(0.2))
+        
 
             player.f.points = player.f.points.sub(this.cost())
 
@@ -681,6 +782,25 @@ addLayer("f", {
 
             player.f.ash = player.f.ash.add(gain)
         },
+
+        onHold() {
+            this.buy()
+        },
+        holdInterval: 0.1,
+
+        style() {
+            return {
+                'background-color': '#3d1f0d',
+                'color': '#ffe5b4',
+                'border': '3px solid #ffab40',
+                'border-radius': '16px',
+                'box-shadow': '0 0 12px rgba(255, 171, 64, 0.45)',
+                'padding': '10px',
+                'min-width': '210px',
+                'min-height': '100px',
+            }
+        },
+
     }
 },
 
@@ -838,6 +958,7 @@ addLayer("f", {
     row: 1,
     
     layerShown() {
-        return player.points.gte(5e8) || player.f.unlocked
+        return hasUpgrade("p", 24) || player.f.unlocked
     }
-})
+}) 
+

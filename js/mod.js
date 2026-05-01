@@ -44,18 +44,6 @@ function getPointGen() {
 		return new Decimal(0)
 
     let gain = new Decimal(1)
-	
-	 if (inChallenge("f", 11))
-            gain = gain.div(10)
-
-	 if (inChallenge("f", 12))
-            gain = gain.div(100)
-
-	 if (inChallenge("w", 11))
-            gain = gain.div(1000)
-
-	 if (inChallenge("w", 12))
-            gain = gain.div(1e10)
 
 	// boosts: p \\
     if (hasUpgrade("p", 11)) gain = gain.times(2)
@@ -91,11 +79,38 @@ function getPointGen() {
 	if (hasUpgrade("w", 15))
         gain = gain.times(upgradeEffect("w", 15))
 
+	if (hasUpgrade("w", 43))
+        gain = gain.times(16)
+
+
 	// boosts: e \\
 	if (hasUpgrade("e", 11)) gain = gain.times(2)
+
 	if (layers.e?.effect?.power?.gt(0)) {
             gain = gain.times(layers.e.effect.power)
         }
+
+	if (hasUpgrade("e", 21)) gain = gain.times(2)
+
+	if (player.w && player.w.boostActive)
+        gain = gain.times(player.points.add(1).log10().add(1).pow(0.7))
+
+	if (inChallenge("f", 13))
+            gain = gain.pow(0.5)
+	
+	 if (inChallenge("f", 11))
+            gain = gain.div(10)
+
+	 if (inChallenge("f", 12))
+            gain = gain.div(100)
+
+	 if (inChallenge("w", 11))
+            gain = gain.div(1000)
+
+	 if (inChallenge("w", 12))
+            gain = gain.div(1e10)
+
+	 if (inChallenge("p", 11)) gain = gain.div(10)
 
     return gain
 }
